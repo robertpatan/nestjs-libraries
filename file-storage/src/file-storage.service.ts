@@ -8,7 +8,9 @@ export class FileStorageService {
     public baseDir: string;
 
     constructor() {
-        this.baseDir = process.env.STORAGE_PATH ? process.env.STORAGE_PATH : __dirname;
+        if(!process.env.STORAGE_PATH) throw 'STORAGE_PATH variable is empty';
+
+        this.baseDir = process.env.STORAGE_PATH;
     }
 
     /**
@@ -18,15 +20,18 @@ export class FileStorageService {
      * @param options
      */
     async save(path, data, options = {}): Promise<any> {
-        return fs.writeFile(path, data, (err) => { //async implementation
-            // throws an error, you could also catch it here
+        return fs.writeFile(path, data, (err) => {
             if (err) throw err;
 
-            // success case, the file was saved
             return true;
         });
     }
 
+    /**
+     *
+     * @param path
+     * @param isRecursive
+     */
     createDirectoryIfNotExists(path: string, isRecursive: boolean = true) {
         if (fs.existsSync(path)) return;
         return fs.mkdirSync(path, {recursive: isRecursive})
@@ -60,6 +65,7 @@ export class FileStorageService {
 
     /**
      * Create a hash from a buffer as input
+     *
      * @param buffer
      * @param algorithm
      */
